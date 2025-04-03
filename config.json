@@ -1,0 +1,17 @@
+{
+  "option": {
+    "forceLogin": false,
+    "listenEvents": true,
+    "logLevel": "error",
+    "selfListen": false,
+    "online": true,
+    "autoMarkDelivery": false,
+    "autoMarkRead": false
+  },
+  "botPrefix": "/",
+  "botName": "Made in ChatGPT",
+  "botAdmins": [
+    ""
+  ]
+}
+
