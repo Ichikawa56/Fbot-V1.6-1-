@@ -1,5 +1,5 @@
-# Fbot-V1.6
-### MADE BY CHATGPT
+# KaoriBot V1.2
+### MADE BY Kyo Hisakawa and Theophilus Vonderstein
 
 ### GETTING STARTED
 To set up the project, follow these steps:
@@ -29,9 +29,4 @@ node index.js
 
 # SOURCES
 
-### Noob and Brainless Creator: [Mark Martinez](https://www.facebook.com/share/1BWKFtqg2u/)
-
-
- FCA Library: ws3-fca
-
-### free to use my autobot-x-api:[Autobot-x-Api](https://autobot.mark-projects.site/)
+### Credits to the original source code owner: [Mark Martinez](https://www.facebook.com/share/1BWKFtqg2u/)
