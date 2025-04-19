@@ -8,10 +8,14 @@
     "autoMarkDelivery": false,
     "autoMarkRead": false
   },
+  "ownerName": "Kyo Hisakawa and Theophilus Vonderstein",
+  "ownerOne" : "61571307728777",
+  "ownerTwo": "61555836246766",
   "botPrefix": "/",
-  "botName": "Made in ChatGPT",
+  "botName": "Kaori",
   "botAdmins": [
-    ""
+    "61571307728777",
+    "61555836246766"
   ]
 }
 

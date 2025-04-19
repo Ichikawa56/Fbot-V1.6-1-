@@ -11,13 +11,18 @@
   "description": "",
   "dependencies": {
     "@xaviabot/fb-downloader": "^1.0.14",
-    "axios": "^1.8.3",
+    "axios": "^1.8.4",
+    "canvas": "^3.1.0",
+    "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "fs-extra": "^11.3.0",
+    "jimp": "^0.22.12",
     "node-cron": "^3.0.3",
     "node-schedule": "^2.1.1",
     "npmlog": "^7.0.1",
     "pidusage": "^4.0.0",
+    "request-promise": "^4.2.6",
+    "streamifier": "^0.1.1",
     "ws3-fca": "^1.0.47"
   },
   "repository": {

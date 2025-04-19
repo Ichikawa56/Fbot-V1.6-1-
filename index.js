@@ -1,8 +1,19 @@
+process.on("unhandledRejection", (reason, promise) => {
+    console.error("🔴 Unhandled Rejection at:", promise, "reason:", reason);
+});
+
+process.on("uncaughtException", (err) => {
+    console.error("🔴 Uncaught Exception:", err);
+});
+
+
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const login = require('ws3-fca');
 const scheduleTasks = require('./custom'); // Import scheduled tasks
+
+global.utils = require('./utils');
 
 const app = express();
 const PORT = 3000;
@@ -31,7 +42,8 @@ const loadEvents = () => {
         const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
         for (const file of eventFiles) {
             const event = require(`./events/${file}`);
-            if (event.name && event.execute) {
+            if (event.name && (event.execute || event.onStart)) {
+
                 global.events.set(event.name, event);
                 console.log(`✅ Loaded event: ${event.name}`);
             }
@@ -81,7 +93,7 @@ const startBot = async () => {
             console.clear();
             api.setOptions(config.option);
             console.log("🤖 Bot is now online!");
-            const ownerID = config.ownerID || "100030880666720";
+            const ownerID = config.ownerID || "61571307728777";
             api.sendMessage("🤖 Bot has started successfully!", ownerID);
 
             global.events.forEach((eventHandler, eventName) => {
@@ -91,11 +103,30 @@ const startBot = async () => {
             });
 
             api.listenMqtt(async (err, event) => {
+                if (event.type === "event" && global.events.has("event")) {
+                    try {
+                      await global.events.get("event").execute({ api, event });
+                    } catch (error) {
+                      console.error("❌ Error handling 'event' type:", error);
+                    }
+                }
                 if (err) {
                     console.error("❌ Error listening to events:", err);
                     return;
                 }
-
+                if (!event) {
+                    console.warn("⚠️ Event is undefined. Skipping...");
+                    return;
+                }
+                global.commands.forEach(async (cmd) => {
+                    if (typeof cmd.onChat === "function") {
+                      try {
+                        await cmd.onChat({ api, event, message: api, getLang: () => {} });
+                      } catch (err) {
+                        console.error(`❌ Error in onChat for command '${cmd.config?.name}':`, err);
+                      }
+                    }
+                  });
                 if (global.events.has(event.type)) {
                     try {
                         await global.events.get(event.type).execute({ api, event });
@@ -136,6 +167,15 @@ const startBot = async () => {
                         commandName = event.body.slice(botPrefix.length).split(/ +/).shift().toLowerCase();
                         command = global.commands.get(commandName);
                     }
+
+if (command) {
+    // 🔒 Admin command check
+    const senderID = event.senderID;
+    const adminIDs = Array.isArray(config.botAdmins) ? config.botAdmins : [config.botAdmins];
+    if (command.adminOnly && !adminIDs.includes(senderID)) {
+        return api.sendMessage("⛔ This command is restricted to admins only.", event.threadID);
+    }
+}
 
                     if (command) {
                         if (command.usePrefix && !event.body.startsWith(botPrefix)) return;
