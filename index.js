@@ -168,14 +168,27 @@ const startBot = async () => {
                         command = global.commands.get(commandName);
                     }
 
-if (command) {
-    // 🔒 Admin command check
-    const senderID = event.senderID;
-    const adminIDs = Array.isArray(config.botAdmins) ? config.botAdmins : [config.botAdmins];
-    if (command.adminOnly && !adminIDs.includes(senderID)) {
-        return api.sendMessage("⛔ This command is restricted to admins only.", event.threadID);
-    }
-}
+                    if (command) {
+                        const senderID = event.senderID;
+                        const { getRole } = require("./utils/roles");
+                        const senderRole = getRole(senderID);
+                      
+                        // If command defines required role
+                        if (command.requiredRole) {
+                          const allowedRoles = Array.isArray(command.requiredRole)
+                            ? command.requiredRole
+                            : [command.requiredRole];
+                      
+                          if (!allowedRoles.includes(senderRole)) {
+                            return api.sendMessage("⛔ You don’t have permission to use this command.", event.threadID);
+                          }
+                        }
+                      
+                        if (command.adminOnly && senderRole !== "botAdmin") {
+                          return api.sendMessage("⛔ This command is restricted to bot admins.", event.threadID);
+                        }
+                      }
+                      
 
                     if (command) {
                         if (command.usePrefix && !event.body.startsWith(botPrefix)) return;

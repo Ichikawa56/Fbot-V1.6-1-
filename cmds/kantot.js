@@ -8,7 +8,7 @@ module.exports = {
     usePrefix: false,
     description: "(Admin only) If the user mentions someone, the bot will send an image of both of them fucking.",
     version: "1.0",
-    adminOnly: true,
+    requiredRole: ["botAdmin", "accessAdmin"],
 
     execute: async function ({ api, event, args }) {
         const mention = Object.keys(event.mentions);
