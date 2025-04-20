@@ -15,12 +15,12 @@ module.exports = {
 
             // Message content
             const message = `
-                Hi, I'm ${botName} 🤖, I was built in NodeJS and JavaScript, using wc3-fca as a login system.
+                Hi, I'm ${botName} 🤖, I was built in NodeJS and JavaScript, using wc3-fca as a login system and was developed by ${ownerName}.
 
 Here's some information about me:
 
 - Prefix: ${config.prefix || '/'} 
-- Owners: ${ownerName}
+- Owners/developers: ${ownerName}
 https://www.facebook.com/profile.php/?id=${ownerOne}
 https://www.facebook.com/profile.php/?id=${ownerTwo}
 
