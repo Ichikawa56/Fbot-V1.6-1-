@@ -29,7 +29,7 @@
   ],
   "cooldown": {
     "enabled": true,
-    "time": 10,  // in seconds, cooldown time per group
+    "time": 10000,  // in seconds, cooldown time per group
     "message": "Bot is on cooldown by 10 seconds, Please try again later"
   }
 }
