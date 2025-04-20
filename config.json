@@ -9,7 +9,7 @@
     "autoMarkRead": false
   },
   "ownerName": "Kyo Hisakawa and Theophilus Vonderstein",
-  "ownerOne" : "61571307728777",
+  "ownerOne": "61571307728777",
   "ownerTwo": "61555836246766",
   "botPrefix": "/",
   "botName": "Kaori",
@@ -26,6 +26,10 @@
     "",
     "",
     ""
-  ]
+  ],
+  "cooldown": {
+    "enabled": true,
+    "time": 10,  // in seconds, cooldown time per group
+    "message": "Bot is on cooldown by 10 seconds, Please try again later"
+  }
 }
-
