@@ -196,7 +196,7 @@ const startBot = async () => {
                         }
 
                         // Cooldown logic
-                        const cooldownTime = command.cooldown || 3000;
+                        const cooldownTime = command.cooldown || 10000;
                         const lastUsed = commandCooldowns.get(commandKey) || 0;
                         const notifiedKey = `${commandKey}-${senderID}`;
                         const lastNotified = cooldownNotified.get(notifiedKey) || 0;
