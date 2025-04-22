@@ -1,0 +1,49 @@
+module.exports = {
+    name: "leaveall",
+    usage: "leaveall",
+    version: "1.0",
+    usePrefix: true,
+    adminOnly: true,
+
+    async execute({ api, event, args }) {
+        const { threadID, messageID, senderID } = event;
+
+        // Send confirmation message
+        api.sendMessage("📝 Starting to leave all groups...", threadID, messageID);
+
+        try {
+            // Get all the threads the bot is in
+            const threads = await api.getThreadList(100, null, ["INBOX"]);
+            const groupThreads = threads.filter(thread => thread.isGroup);
+
+            if (groupThreads.length === 0) {
+                return api.sendMessage("❌ The bot is not in any groups.", threadID, messageID);
+            }
+
+            // Function to leave the groups with a delay to prevent detection
+            const leaveGroup = async (groupThread) => {
+                try {
+                    await api.leaveThread(groupThread.threadID);
+                    console.log(`✅ Left group: ${groupThread.name}`);
+                    api.sendMessage(`The bot has left group: ${groupThread.name}`, threadID, messageID);
+                } catch (err) {
+                    console.error(`❌ Failed to leave group ${groupThread.name}:`, err);
+                    api.sendMessage(`❌ Failed to leave group: ${groupThread.name}`, threadID, messageID);
+                }
+            };
+
+            // Interval to leave the groups one by one
+            for (let i = 0; i < groupThreads.length; i++) {
+                await leaveGroup(groupThreads[i]);
+
+                // Add a random delay between 5 to 10 seconds before leaving the next group
+                await new Promise(resolve => setTimeout(resolve, Math.random() * (10000 - 5000) + 5000));
+            }
+
+            api.sendMessage("✅ Finished leaving all groups.", threadID, messageID);
+        } catch (err) {
+            console.error("❌ Error leaving groups:", err);
+            api.sendMessage("❌ An error occurred while trying to leave the groups.", threadID, messageID);
+        }
+    }
+};
