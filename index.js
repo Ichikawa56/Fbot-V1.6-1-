@@ -79,8 +79,8 @@ app.listen(PORT, () => {
 
 const appState = loadConfig("./appState.json");
 const detectedURLs = new Set();
-const commandCooldowns = new Map(); // Stores cooldowns per threadID + commandName
-const cooldownNotified = new Map(); // Tracks who was notified in each thread+command
+const groupCooldowns = new Map(); // Stores cooldown per group (threadID)
+const cooldownNotified = new Map(); // Tracks cooldown notifications per group
 
 const startBot = async () => {
     try {
@@ -176,43 +176,36 @@ const startBot = async () => {
                     if (command) {
                         const senderID = event.senderID;
                         const threadID = event.threadID;
-                        const commandKey = `${threadID}-${command.name}`;
+                        const isAdmin = config.botAdmins.includes(senderID);
+
+                        // Check if command is within cooldown
                         const now = Date.now();
-                        const { getRole } = require("./utils/roles");
-                        const senderRole = getRole(senderID);
+                        const groupKey = `${threadID}`; // Use threadID for group-specific cooldown
+                        const lastUsed = groupCooldowns.get(groupKey) || 0;
+                        const cdTime = (config.cooldown.time || 10) * 1000; // Convert seconds to ms
+                        const cooldownExpired = now - lastUsed >= cdTime;
 
-                        // Permissions check
-                        if (command.requiredRole) {
-                            const allowedRoles = Array.isArray(command.requiredRole)
-                                ? command.requiredRole
-                                : [command.requiredRole];
-                            if (!allowedRoles.includes(senderRole)) {
-                                return api.sendMessage("⛔ You don’t have permission to use this command.", threadID);
-                            }
-                        }
+                        // Skip cooldown for bot admins
+                        if (!isAdmin && !cooldownExpired) {
+                            // Check if this user has been notified yet for this group
+                            const notifiedKey = `${groupKey}-${senderID}`;
+                            const notifiedTimestamp = cooldownNotified.get(notifiedKey) || 0;
 
-                        if (command.adminOnly && senderRole !== "botAdmin") {
-                            return api.sendMessage("⛔ This command is restricted to bot admins.", threadID);
-                        }
-
-                        // Cooldown logic
-                        const cooldownTime = command.cooldown || 10000;
-                        const lastUsed = commandCooldowns.get(commandKey) || 0;
-                        const notifiedKey = `${commandKey}-${senderID}`;
-                        const lastNotified = cooldownNotified.get(notifiedKey) || 0;
-
-                        if (now - lastUsed < cooldownTime) {
-                            if (now - lastNotified > cooldownTime) {
+                            if (now - notifiedTimestamp > cdTime) {
+                                // Notify the user once per cooldown period
                                 cooldownNotified.set(notifiedKey, now);
-                                return api.sendMessage(cooldownMessage, threadID, null, event.messageID);
+                                return api.sendMessage(
+                                    `${cooldownMessage} (try again later)`,
+                                    threadID
+                                );
                             }
                             return;
                         }
 
-                        commandCooldowns.set(commandKey, now);
+                        // Reset cooldown for group
+                        groupCooldowns.set(groupKey, now);
 
-                        if (command.usePrefix && !event.body.startsWith(botPrefix)) return;
-
+                        // Execute command if it's not in cooldown
                         try {
                             await command.execute({ api, event, args });
                         } catch (error) {
