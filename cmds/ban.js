@@ -56,16 +56,27 @@ module.exports = {
       messageID
     );
 
-    // Try to kick user
-    api.removeUserFromGroup(userID, threadID, (err) => {
-      if (err) {
-        console.error(`❌ Failed to kick user ${userID}:`, err);
-        return api.sendMessage(
-          `⚠️ Couldn't kick the user. Make sure I'm an *admin* in this group.`,
-          threadID
-        );
-      }
-      console.log(`✅ Banned and kicked user ${userID}`);
-    });
+    // Add a 1-second delay before attempting to kick the user
+    setTimeout(() => {
+      // Try to kick the user after the delay
+      api.removeUserFromGroup(userID, threadID, (err) => {
+        if (err) {
+          console.error(`❌ Failed to kick user ${userID}:`, err);
+
+          if (err.errorCode === 'EACCESS') {
+            return api.sendMessage(
+              `⚠️ Couldn't kick the user. Make sure I'm an *admin* in this group.`,
+              threadID
+            );
+          }
+          return api.sendMessage(
+            `⚠️ An unknown error occurred while trying to kick the user. Please try again.`,
+            threadID
+          );
+        }
+
+        console.log(`✅ Banned and kicked user ${userID}`);
+      });
+    }, 1000); // 1000 milliseconds = 1 second
   }
 };
